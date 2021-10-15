@@ -17,7 +17,7 @@ export async function fetchAndCompleteTask(body: { post?: any; completedBy?: any
 
 	console.log('Completing task');
 	const { completedBy } = body
-	await completeTask('Mapping Potholes', '43.649235671', '-79.3840750083', '250', 'Fill up pothole at the location!', completedBy);
+	await completeTask('Pothole', '43.65604614887085', '-79.38016603758616', '100', 'Near Yonge & Dundas', completedBy);
 
 	console.log('Reading Task');
 	const task = await readTask();
@@ -35,10 +35,10 @@ export async function fetchTask(): Promise<Task> {
 
 
 	// Check if the program has been deployed
-	await checkProgram('Mapping Potholes', '43.649235671', '-79.3840750083', '250', 'Fill up pothole at the location!');
+	await checkProgram('Pothole', '43.65604614887085', '-79.38016603758616', '100', 'Near Yonge & Dundas');
 
 	// // console.log('Creating Task');
-	// await createTask('Mapping Potholes', '43.649235671', '-79.3840750083', '250', 'This is a test task for the Solana Hackathon');
+	// await createTask('Mapping Potholes', '43.649235671', '-79.3840750083', '100', 'This is a test task for the Solana Hackathon');
 
 	console.log('Reading Task');
 	const task = await readTask();

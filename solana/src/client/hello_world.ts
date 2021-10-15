@@ -68,9 +68,9 @@ export class Task {
 	points = "100";
 	desc = 'this is a long description';
 	completedBy = '00000000000000000000000000000000000000000000';
+	image = '';
 
-
-	constructor(fields: { name: string, lat: string, lng: string, points: string, desc: string, completedBy: string }) {
+	constructor(fields: { name: string, lat: string, lng: string, points: string, desc: string, completedBy: string, image: string }) {
 		if (fields) {
 			this.name = fields.name;
 			this.lat = fields.lat;
@@ -78,6 +78,7 @@ export class Task {
 			this.points = fields.points;
 			this.desc = fields.desc;
 			this.completedBy = fields.completedBy;
+			this.image = fields.image;
 		}
 	}
 
@@ -87,7 +88,7 @@ export class Task {
  * Borsh schema definition for greeting accounts
  */
 const TaskSchema = new Map([
-	[Task, { kind: 'struct', fields: [['name', 'String'], ['lat', 'String'], ['lng', 'String'], ['points', 'String'], ['desc', 'String'], ['completedBy', 'String']] }],
+	[Task, { kind: 'struct', fields: [['name', 'String'], ['lat', 'String'], ['lng', 'String'], ['points', 'String'], ['desc', 'String'], ['completedBy', 'String'], ['image', 'String']] }],
 ]);
 
 /**
@@ -180,7 +181,7 @@ export async function checkProgram(name: string, lat: string, lng: string, point
 	);
 
 
-	let TASK_SIZE = borsh.serialize(TaskSchema, new Task({ name: name, lat: lat, lng: lng, points: points, desc: desc, completedBy: '00000000000000000000000000000000000000000000' })).length;
+	let TASK_SIZE = borsh.serialize(TaskSchema, new Task({ name: name, lat: lat, lng: lng, points: points, desc: desc, completedBy: '00000000000000000000000000000000000000000000', image: '' })).length;
 
 	// Check if the task account has already been created
 	const taskAccount = await connection.getAccountInfo(taskPubkey);
@@ -217,7 +218,7 @@ export async function checkProgram(name: string, lat: string, lng: string, point
 
 export async function createTask(name: string, lat: string, lng: string, points: string, desc: string): Promise<void> {
 
-	let TASK = borsh.serialize(TaskSchema, new Task({ name: name, lat: lat, lng: lng, points: points, desc: desc, completedBy: '00000000000000000000000000000000000000000000' }));
+	let TASK = borsh.serialize(TaskSchema, new Task({ name: name, lat: lat, lng: lng, points: points, desc: desc, completedBy: '00000000000000000000000000000000000000000000', image: '' }));
 
 	const instructionData = Buffer.alloc(TASK.length);
 
@@ -238,7 +239,7 @@ export async function createTask(name: string, lat: string, lng: string, points:
 export async function completeTask(name: string, lat: string, lng: string, points: string, desc: string, completedBy: string): Promise<void> {
 
 	let addr = completedBy || payer.publicKey.toBase58();
-	let TASK = borsh.serialize(TaskSchema, new Task({ name: name, lat: lat, lng: lng, points: points, desc: desc, completedBy: addr }));
+	let TASK = borsh.serialize(TaskSchema, new Task({ name: name, lat: lat, lng: lng, points: points, desc: desc, completedBy: addr, image: "test image" }));
 
 	const instructionData = Buffer.alloc(TASK.length);
 
@@ -261,8 +262,7 @@ export async function readTask(): Promise<Task> {
 	if (taskInfo === null) {
 		throw 'Error: cannot find the task account';
 	}
-	console.log('task is');
-	console.log(taskInfo.data.length);
+	console.log('task with publickey ');
 	const task = borsh.deserializeUnchecked(TaskSchema, Task, taskInfo.data);
 	console.log(taskPubkey.toBase58(), 'is', task);
 	return task;

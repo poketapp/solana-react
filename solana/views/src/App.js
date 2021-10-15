@@ -7,7 +7,7 @@ import './App.css';
 import GoogleMapReact from 'google-map-react';
 import { Button, message, Table, Input } from 'antd';
 
-import { DownloadOutlined, SendOutlined, UserOutlined } from '@ant-design/icons';
+import { DownloadOutlined, SendOutlined, UserOutlined, CloudUploadOutlined } from '@ant-design/icons';
 
 
 const Marker = ({ text }) =>
@@ -24,11 +24,12 @@ class App extends Component {
       response: '',
       post: '',
       responseToPost: '',
-      lat: 43.65737242113442,
-      lng: -79.38267843068441,
+      lat: 43.65604614887085,
+      lng: -79.38016603758616,
       task: {},
       taskIsComplete: false,
-      completedBy: ''
+      completedBy: '',
+      photoIsUploaded: false,
     };
 
     this.fetchTask = this.fetchTask.bind(this);
@@ -57,8 +58,8 @@ class App extends Component {
     this.setState({
       responseToPost: body,
       task,
-      lat: Number.parseInt(task.lat),
-      lng: Number.parseInt(task.lng)
+      lat: Number.parseFloat(task.lat),
+      lng: Number.parseFloat(task.lng)
     });
   };
 
@@ -76,8 +77,8 @@ class App extends Component {
     this.setState({
       responseToPost: body,
       task,
-      lat: Number.parseInt(task.lat),
-      lng: Number.parseInt(task.lng),
+      lat: Number.parseFloat(task.lat),
+      lng: Number.parseFloat(task.lng),
       taskIsComplete: true,
     });
     message.success('Successfully completed Task');
@@ -88,6 +89,7 @@ class App extends Component {
     {
       title: 'Task Properties',
       dataIndex: 'prop',
+      width: 150
     },
     {
       title: 'Values',
@@ -98,7 +100,8 @@ class App extends Component {
   render() {
 
     // deserialize state
-    const { task, taskIsComplete, lat, lng, completedBy } = this.state;
+    const { task, taskIsComplete, lat, lng, completedBy, photoIsUploaded } = this.state;
+    console.log(lat, lng)
     const taskKeys = Object.keys(task)
     console.log(task)
     const fetchedTask = taskKeys.length > 0
@@ -109,13 +112,33 @@ class App extends Component {
         if (!taskIsComplete && key === 'completedBy' && task[key] === '00000000000000000000000000000000000000000000')
           continue;
 
-        fixedData.push(
-          {
-            key: index,
-            prop: key,
-            value: task[key]
-          }
-        )
+        if (key === "image") {
+          continue;
+          // fixedData.push(
+          //   {
+          //     key: index,
+          //     prop: key,
+          //     value: "pothole.jpeg"
+          //   }
+          // )
+        } else if (key === "desc") {
+          fixedData.push(
+            {
+              key: index,
+              prop: key,
+              value: "Near Yonge and Dundas"
+            }
+          )
+        }
+        else {
+          fixedData.push(
+            {
+              key: index,
+              prop: key,
+              value: task[key]
+            }
+          )
+        }
         index++;
       }
     }
@@ -126,7 +149,7 @@ class App extends Component {
           <img src={maptaskLogo} className="App-logo" alt="logo" />
         </div>
         <div className="App_body">
-          <p className="App_welcome"> Welcome to the MapTask App</p>
+          <p className="App_welcome">MapTask Responder App</p>
           <div style={{ height: '44vh', width: '100%', marginTop: 20, marginBottom: 20 }}>
             <GoogleMapReact
               bootstrapURLKeys={{ key: "AIzaSyCcoqcaOgjLFn11SBa_bLziZviGja1zx4s" }}
@@ -134,8 +157,8 @@ class App extends Component {
                 lat: 0,
                 lng: 0
               }}
-              defaultZoom={12}
-              zoom={12}
+              defaultZoom={14}
+              zoom={14}
               center={{ lat, lng }}>
               {fetchedTask && <Marker
                 lat={lat}
@@ -161,13 +184,26 @@ class App extends Component {
                 style={{ marginBottom: 20 }} />
             }
 
-            {fetchedTask &&
-              <img src={"https://solutudo-cdn.s3-sa-east-1.amazonaws.com/prod/adv_ads/5e1f2e10-67b0-439f-871c-162dac1e0d51/5e8f5bd6-6910-4881-af11-3392ac1e02d3.jpg"} alt="pin" style={{ alignSelf: "center", width: 340, height: 340 }} />
+            {fetchedTask && !photoIsUploaded &&
+              <Button
+                type="dashed"
+                shape="round"
+                icon={<CloudUploadOutlined />}
+                onClick={() => this.setState({ photoIsUploaded: true })}
+                style={{ marginTop: 20 }}
+              >
+                Upload Photo Proof
+              </Button>
             }
+
+            {fetchedTask && photoIsUploaded &&
+              < img src={"https://solutudo-cdn.s3-sa-east-1.amazonaws.com/prod/adv_ads/5e1f2e10-67b0-439f-871c-162dac1e0d51/5e8f5bd6-6910-4881-af11-3392ac1e02d3.jpg"} alt="pin" style={{ alignSelf: "center", width: 340, height: 340 }} />
+            }
+
 
             {fetchedTask && !taskIsComplete &&
               <form>
-                <p>Provide the name or solana address of whoever completed this task?</p>
+                <p style={{ fontFamily: 'Montserrat', fontWeight: 'bold', fontSize: 16, color: '#2C405A', marginTop: 20 }}>Provide the name or solana address of whoever completed this task?</p>
                 <div>
                   <Input
                     placeholder="name or address of completer"
