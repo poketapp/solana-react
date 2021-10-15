@@ -11,8 +11,8 @@ import { DownloadOutlined, SendOutlined, UserOutlined } from '@ant-design/icons'
 
 
 const Marker = ({ text }) =>
-  <div>
-    {text}
+  <div style={{ display: 'flex', flexDirection: 'column', alignContent: 'center' }}>
+    <p style={{ color: 'brown', fontWeight: 'bold' }}>{text}</p>
     <img src={mapPin} className="App_pin" alt="pin" />
   </div>;
 
@@ -106,7 +106,6 @@ class App extends Component {
     if (fetchedTask) {
       let index = 0;
       for (let key of taskKeys) {
-        console.log("key is ", key)
         if (!taskIsComplete && key === 'completedBy' && task[key] === '00000000000000000000000000000000000000000000')
           continue;
 
@@ -120,8 +119,6 @@ class App extends Component {
         index++;
       }
     }
-
-    console.log(fixedData);
 
     return (
       <div className="App" >
@@ -137,8 +134,8 @@ class App extends Component {
                 lat: 0,
                 lng: 0
               }}
-              defaultZoom={15}
-              zoom={15}
+              defaultZoom={12}
+              zoom={12}
               center={{ lat, lng }}>
               {fetchedTask && <Marker
                 lat={lat}
@@ -159,7 +156,14 @@ class App extends Component {
                 columns={this.fixedColumns}
                 dataSource={fixedData}
                 bordered
-                tableLayout='fixed' />}
+                tableLayout='fixed'
+                pagination={false}
+                style={{ marginBottom: 20 }} />
+            }
+
+            {fetchedTask &&
+              <img src={"https://solutudo-cdn.s3-sa-east-1.amazonaws.com/prod/adv_ads/5e1f2e10-67b0-439f-871c-162dac1e0d51/5e8f5bd6-6910-4881-af11-3392ac1e02d3.jpg"} alt="pin" style={{ alignSelf: "center", width: 340, height: 340 }} />
+            }
 
             {fetchedTask && !taskIsComplete &&
               <form>
